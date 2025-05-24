@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contagem para Nova Casa</title>
+  <style>
+    :root {
+      --bg-color: #0f0f11;
+      --card-bg: #1e1f24;
+      --text-color: #ffffff;
+      --accent-color: #4caf50;
+      --shadow-color: rgba(0, 255, 128, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 2rem;
+      color: var(--accent-color);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 25px var(--shadow-color);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .card:hover {
+      box-shadow: 0 0 35px var(--accent-color);
+    }
+
+    .data, .contador, .clima {
+      font-size: 1.3rem;
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+
+    .contador strong {
+      font-size: 1.7rem;
+      display: block;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      .data, .contador, .clima {
+        font-size: 1.1rem;
+      }
+      .contador strong {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Contagem para Nova Casa</h1>
+
+  <div class="card">
+    <div class="data" id="hora">Carregando data...</div>
+  </div>
+
+  <div class="card">
+    <div class="contador" id="contador">Carregando contagem...</div>
+  </div>
+
+  <div class="card">
+    <div class="clima" id="clima">Carregando clima...</div>
+  </div>
+
+  <script>
+    function atualizarHora() {
+      const agora = new Date();
+      const horaFormatada = agora.toLocaleString('pt-BR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      document.getElementById("hora").innerText = `Data e hora atual: ${horaFormatada}`;
+    }
+
+    setInterval(atualizarHora, 1000);
+    atualizarHora();
+
+    function atualizarContador() {
+      const hoje = new Date();
+      const alvo = new Date('2025-08-01T00:00:00');
+      const diff = alvo - hoje;
+
+      const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutos = Math.floor((diff / (1000 * 60)) % 60);
+      const segundos = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("contador").innerHTML =
+        `Faltam <strong>${dias} dias, ${horas}h, ${minutos}min, ${segundos}s</strong> para 1º de agosto.`;
+    }
+
+    setInterval(atualizarContador, 1000);
+    atualizarContador();
+
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=-30.8489&longitude=-51.8043&current_weather=true&timezone=America%2FSao_Paulo")
+      .then(res => res.json())
+      .then(data => {
+        const temp = data.current_weather.temperature;
+        const vento = data.current_weather.windspeed;
+        document.getElementById("clima").innerText = `Camaquã/RS agora: ${temp}°C, Vento: ${vento} km/h`;
+      })
+      .catch(() => {
+        document.getElementById("clima").innerText = "Não foi possível carregar o clima.";
+      });
+  </script>
+</body>
+</html>
